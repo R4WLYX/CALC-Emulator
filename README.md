@@ -21,5 +21,4 @@ Other example code can be found in the "example" folder.
 
 Downloads.
 -
-CALC-Emulator App: <a href="base.asc" download="base.asc">CALC-Emulator.</a><br>
 Base File: <a href="base.asc" download="base.asc">Base ASC code.</a><br>
