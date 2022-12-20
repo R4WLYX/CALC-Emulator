@@ -21,5 +21,5 @@ Other example code can be found in the "example" folder.
 
 Downloads.
 -
-<a href="data:application/octet-stream,DATA" download="FILENAME">CALC-Emulator App: </a><br>
-Base File: 
+CALC-Emulator App: <a href="base.asc" download="base.asc">CALC-Emulator.</a><br>
+Base File: <a href="base.asc" download="base.asc">Base ASC code.</a><br>
