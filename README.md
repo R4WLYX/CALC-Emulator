@@ -17,7 +17,7 @@ Writing a ASC code.
 
 Example ASC code.
 -
-Other example code can be found in the "example" folder.
+Example code can be found in the "<a href="CALC-Emulator/example">example</a>" folder.
 
 Downloads.
 -
