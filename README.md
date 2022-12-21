@@ -17,7 +17,7 @@ Writing a ASC Code.
 Using the Em.
 -
 1. Download the [CALC-Emulator.zip](#important-links) file.
-2. To open the app go to `bin/Debug/net6.0` and run the `.exe` file.
+2. To open the app run the `.exe` file.
 
 Example ASC code.
 -
