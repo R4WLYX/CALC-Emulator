@@ -8,16 +8,17 @@ Writing a ASC code.
 -
 1. Create a new `.asc` file.
 2. Creat a `Main:` method to start of with.
-3. alternatively you can use the `base.asc` file.
+3. Alternatively you can use the [`base.asc`](#important-links) file.
 4. To make a method use `def` followed by method name.
 5. Then add a `RTN` instruction at the end of the method.
 6. To call this method in the `Main:` method use `CAL` followed by method pointer.
+7. You can also use the [CALC ISA](#important-links) as a refrence
 
 Example ASC code.
 -
 Example code can be found in the <a href="CALC-Emulator/example">`example`</a> folder.
 
-Links.
+Important Links.
 -
 CALC ISA: [CALC ISA](https://docs.google.com/spreadsheets/d/1cAkJrPHr2NaB6NzkKBMjP4aPQQalOxp-QOafpjYkXTk/edit?usp=sharing)<br>
 Base ASC: [base.asc](CALC-Emulator/base.asc)
