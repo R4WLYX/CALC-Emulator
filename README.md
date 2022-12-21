@@ -22,4 +22,5 @@ Important Links.
 -
 CALC ISA: [CALC ISA](https://docs.google.com/spreadsheets/d/1cAkJrPHr2NaB6NzkKBMjP4aPQQalOxp-QOafpjYkXTk/edit?usp=sharing)<br>
 ASC Base File: [base.asc](CALC-Emulator/base.asc)<br>
-ASC Refrence: [refrence.asc](CALC-Emulator/refrence.asc)
+ASC Refrence: [refrence.asc](CALC-Emulator/refrence.asc)<br>
+Emulator (zip): [CALC-Emulator](CALC-Emulator.zip)
