@@ -17,7 +17,7 @@ Example ASC code.
 -
 Example code can be found in the <a href="CALC-Emulator/example">`example`</a> folder.
 
-Downloads/Links.
+Links.
 -
 CALC ISA: [CALC ISA](https://docs.google.com/spreadsheets/d/1cAkJrPHr2NaB6NzkKBMjP4aPQQalOxp-QOafpjYkXTk/edit?usp=sharing)<br>
 Base ASC: [base.asc](CALC-Emulator/base.asc)
