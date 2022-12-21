@@ -4,7 +4,7 @@ The CALC Emulator is a Console App that can assemble a custom made assembly code
 The output machine code of this assembler/emulator is used in my minecraft hexadecimal redstone computer (CALC). <br>
 This assembler uses `.asc` files and converts them to `.smc` files. <br>
 
-Writing a ASC code.
+Writing a ASC Code.
 -
 1. Create a new `.asc` file.
 2. Creat a `Main:` method to start of with.
@@ -13,6 +13,11 @@ Writing a ASC code.
 5. Then add a `RTN` instruction at the end of the method.
 6. To call this method in the `Main:` method use `CAL` followed by method pointer.
 7. You can also use the [`CALC ISA`](#important-links) or you could use [`refrence.asc`](#important-links) as a refrence
+
+Using the Em.
+-
+1. Download the [CALC-Emulator.zip](#important-links) file.
+2. To open the app go to `bin/Debug/net6.0` and run the `.exe` file.
 
 Example ASC code.
 -
