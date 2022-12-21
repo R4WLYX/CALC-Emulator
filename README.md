@@ -14,7 +14,7 @@ Writing a ASC Code.
 6. To call this method in the `Main:` method use `CAL` followed by method pointer.
 7. You can also use the [`CALC ISA`](#important-links) or you could use [`refrence.asc`](#important-links) as a refrence
 
-Using the Em.
+Using the Emulator.
 -
 1. Download the [CALC-Emulator.zip](#important-links) file.
 2. To open the app run the `.exe` file.
