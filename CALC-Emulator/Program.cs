@@ -11,7 +11,10 @@ internal class Program
         Console.Title = "CALC Emulator";
         start: string? s = Start();
         int choice = !string.IsNullOrEmpty(s) ? int.Parse(s) : 3;
-        if (choice == 3) { Exit(); }
+        if (choice == 3) {
+            Exit();
+            goto start;
+        }
         debug = choice == 2? true : false;
 
         // Handles File Read
@@ -73,9 +76,10 @@ internal class Program
     static void Exit()
     {
         Console.Clear();
-        Console.Write("Press ESC to Exit.");
-        while(Console.ReadKey(true).Key != ConsoleKey.Escape) {};
-        Console.Clear();
-        Environment.Exit(0);
+        Console.Write("Press ESC to Exit or Any Other Key to Return.");
+        if (Console.ReadKey(false).Key == ConsoleKey.Escape) {
+            Console.Clear();
+            Environment.Exit(0);
+        }
     }
 }

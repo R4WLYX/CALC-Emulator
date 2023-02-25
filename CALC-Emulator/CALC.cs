@@ -3,21 +3,21 @@ namespace CALC;
 class Tools
 {
     static Dictionary<string, string> codeFormat { get; } = new Dictionary<string, string>() {
-        {"NOP", "000000"},
-        {"HLT", "010000"},
-        {"DLY", "0200 num"},
+        {"NOP", "0000"},
+        {"HLT", "0100"},
+        {"DLY", "02 num"},
         {"JMP", "10 num"},
         {"BRH", "2 flag num"},
-        {"CAL", "3000 funcID"},
-        {"RTN", "400000"},
-        {"LDI", "5 num reg"},
-        {"LDM", "6 num reg"},
-        {"STR", "7 num reg"},
-        {"ADD", "8 type sType 00 clr"},
-        {"SUB", "9 type sType 00 clr"},
-        {"SFT", "A type sType 00 reg"},
-        {"GTI", "B0 type reg"},
-        {"DSO", "C0 type reg"}
+        {"CAL", "30 funcID"},
+        {"RTN", "4000"},
+        {"LDI", "5 reg num"},
+        {"LDM", "6 reg num"},
+        {"STR", "7 reg num"},
+        {"ADD", "8 type sType clr"},
+        {"SUB", "9 type sType clr"},
+        {"SFT", "A type sType reg"},
+        {"GTI", "B reg type"},
+        {"DSO", "C reg type"}
     };
 
     static public string Format(string opcode, string[] args)
@@ -48,8 +48,8 @@ class Tools
             break;
             case 5: case 6: case 7: 
             structuredCode = formattedCode
-            .Replace("num", args[0])
-            .Replace("reg", args[1]);
+            .Replace("reg", args[0])
+            .Replace("num", args[1]);
             break;
             case 8: case 9:
             structuredCode = formattedCode
@@ -65,8 +65,8 @@ class Tools
             break;
             case 11: case 12:
             structuredCode = formattedCode
-            .Replace("type", args[0])
-            .Replace("reg", args[1]);
+            .Replace("reg", args[0])
+            .Replace("type", args[1]);
             break;
         }
 
@@ -92,12 +92,12 @@ class Assembler
             string[] args = asm[i].Split(split);
             args = args.Where(a => !string.IsNullOrEmpty(a)).ToArray();
             string opcode = args[0];
-            if (args[0] == "def")
+            if (opcode == "def")
             {
                 p.Add($"{i-p.Count}");
                 goto end;
             }
-            if (args[0] == "Main:")
+            if (opcode == "Main:")
             {
                 p.Insert(0, $"{i-p.Count}");
                 goto end;
@@ -116,7 +116,7 @@ class Assembler
 class Executor
 {
     static Random rnd = new Random();
-    static int[] RAM = new int[0xFFFF];
+    static int[] RAM = new int[0xFF];
     static int[] reg = new int[8] {
         0, 0, 0, 0, 0, 0, 0, 0
     };
@@ -141,6 +141,10 @@ class Executor
 
     static public void Execute(string[] code, string[] pointersStr, bool debug = false)
     {
+        RAM = new int[0xFF];
+        reg = new int[8];
+        lastAddress = 0;
+
         code = Array.ConvertAll(code, l => l.Replace("0x",""));
         int[] _code = Array.ConvertAll(code, s => Convert.ToInt32(s, 16));
         int[] pointers = Array.ConvertAll(pointersStr, s => Convert.ToInt32(s));
@@ -211,74 +215,86 @@ class Executor
 
     static void MSC(params int[] args) {
         if (args[0] == 0 || args[0] == 1) { return; }
-        int delay = args[3]*16 + args[4];
+        int delay = args[1]*16 + args[2];
         for (int i = 0; i < delay; i++) { Task.Delay(1000); }
     }
     static int JMP(params int[] args) {
-        return args[1]*4096 + args[2]*256 + args[3]*16 + args[4];
+        return args[1]*16 + args[2];
     }
     static int? BRH(params int[] args) {
         if (!regF[args[0]]) { return null; }
-        return args[1]*4096 + args[2]*256 + args[3]*16 + args[4];
+        return args[1]*16 + args[2];
     }
     static int CAL(params int[] args) {
-        lastAddress = args[5]+1;
-        return args[3]*16 + args[4];
+        lastAddress = args[3]+1;
+        return args[1]*16 + args[2];
     }
     static int RTN(params int[] args) {
         return lastAddress;
     }
     static void LDI(params int[] args) {
-        reg[args[4]] = args[0]*4096 + args[1]*256 + args[2]*16 + args[3];
+        reg[args[0]] = args[1]*16 + args[2];
     }
     static void LDM(params int[] args) {
-        reg[args[4]] = RAM[args[0]*4096 + args[1]*256 + args[2]*16 + args[3]];
+        reg[args[0]] = RAM[args[1]*16 + args[2]];
     }
     static void STR(params int[] args) {
-        RAM[args[0]*4096 + args[1]*256 + args[2]*16 + args[3]] = reg[args[4]];
+        RAM[args[1]*16 + args[2]] = reg[args[0]];
     }
     static void ADD(params int[] args) {
-        int sum = reg[args[4]] + reg[args[4]+1];
+        int sum = args[0] == 1 && regF[4] ? 
+        reg[args[2]] + reg[args[2]+1] + 1 : reg[args[2]] + reg[args[2]+1];
         UpdateFlags(sum);
-        reg[args[4]] = args[1] == 0 || args[1] == 2 ? sum : reg[args[4]];
-        reg[args[4]+1] = args[1] == 1 || args[1] == 2 ? sum : reg[args[4]+1];
+        reg[args[2]] = args[1] == 0 || args[1] == 2 ? sum : reg[args[2]];
+        reg[args[2]+1] = args[1] == 1 || args[1] == 2 ? sum : reg[args[2]+1];
     }
     static void SUB(params int[] args) {
-        int sum = reg[args[4]] - reg[args[4]+1];
+        int sum = args[0] == 1 && regF[4] ? 
+        reg[args[2]] - reg[args[2]+1] + 1 : reg[args[2]] - reg[args[2]+1];
         UpdateFlags(sum);
-        reg[args[4]] = args[1] == 0 || args[1] == 2 ? sum : reg[args[4]];
-        reg[args[4]+1] = args[1] == 1 || args[1] == 2 ? sum : reg[args[4]+1];
+        reg[args[2]] = args[1] == 0 || args[1] == 2 ? sum : reg[args[2]];
+        reg[args[2]+1] = args[1] == 1 || args[1] == 2 ? sum : reg[args[2]+1];
     }
     static void SFT(params int[] args) {
         int dir; int nextReg; int num;
+        dir = args[0]-args[0]*3+1;
+
         if (args[1] == 0) {
-            dir = args[0]-args[0]*3+1;
-            nextReg = args[4]+dir;
-            num = reg[args[4]];
-            reg[args[4]] = 0;
+            nextReg = args[2]+dir;
+            num = reg[args[2]];
+            reg[args[2]] = 0;
             if (nextReg < 0 || nextReg >= reg.Length) { return; }
             reg[nextReg] = num;
             return;
         }
+        
+        // for (int i = args[0] == 0 ? 0 : reg.Length-1; i < reg.Length || i != 0; i += dir) {
+        //     nextReg = i+dir;
+        //     num = reg[i];
+        //     reg[i] = 0;
+        //     if (nextReg < 0 || nextReg >= reg.Length) { goto end; }
+        //     reg[i] = num;
+        //     end:;
+        // }
     }
     static void GTI(params int[] args) {
-        int condition = args[1]*256 + args[2]*16 + args[3];
-        if (condition == 0 || condition == 1) {
-            string output = condition == 0 ?
+        int port = args[1]*16 + args[2];
+        if (port == 0 || port == 1) {
+            string output = port == 0 ?
             $"Hexadecimal > " :
             $"Decimal > ";
             Console.Write(output);
             string? input = Console.ReadLine();
-            reg[args[4]] = condition == 0 ? Convert.ToInt32(input,16) : Convert.ToInt32(input);
+            reg[args[0]] = port == 0 ? Convert.ToInt32(input,16) : Convert.ToInt32(input);
             return;
         }
-        reg[args[4]] = condition == 2 ? rnd.Next(0xFFFF) : reg[args[4]];
+        reg[args[0]] = port == 2 ? rnd.Next(0xFFFF) : reg[args[0]];
     }
     static void DSO(params int[] args) {
-        int condition = args[1]*256 + args[2]*16 + args[3];
-        string output = condition == 0 ?
-        $"Hexadecimal: {Tools.TwoComp(reg[args[4]])}" :
-        $"Decimal: {reg[args[4]]}";
+        int port = args[1]*16 + args[2];
+        string output = port == 0 ?
+        $"Hexadecimal: {Tools.TwoComp(reg[args[0]])}" :
+        $"Decimal: {reg[args[0]]}";
         Console.WriteLine(output);
     }
 }
