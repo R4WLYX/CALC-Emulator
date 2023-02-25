@@ -15,7 +15,7 @@ Writing a ASC Code.
 
 Using the Emulator.
 -
-1. Download the [CALC-Emulator.zip](#important-links) file.
+1. Download the [CALC-Emulator-App.zip](#important-links) file.
 2. To open the app run the `.exe` file.
 
 Example ASC code.
