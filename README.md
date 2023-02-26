@@ -18,9 +18,9 @@ Using the Emulator.
 1. Download the [CALC-Emulator-App.zip](#important-links) file.
 2. To open the app run the `.exe` file.
 
-Example ASC code.
+Example ASC codes.
 -
-Example code can be found in the <a href="Example">`example`</a> folder.
+Example codes can be found in the <a href="Examples">`example`</a> folder.
 
 Important Links.
 -
