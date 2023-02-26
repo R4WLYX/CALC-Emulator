@@ -46,7 +46,13 @@ class Tools
             structuredCode = formattedCode
             .Replace("funcID", args[0]);
             break;
-            case 5: case 6: case 7: 
+            case 5:
+            args[0] = args[0].Contains('\'')? $"{Convert.ToInt32(args[0].Replace('\'', ' ')) + 8}" : args[0];
+            structuredCode = formattedCode
+            .Replace("reg", args[0])
+            .Replace("num", args[1]);
+            break;
+            case 6: case 7:
             structuredCode = formattedCode
             .Replace("reg", args[0])
             .Replace("num", args[1]);
@@ -83,26 +89,28 @@ class Assembler
 {
     static public string[][] Assemble(string[] asm)
     {
-        string[] code = new string[asm.Length];
+        asm = asm.Where(s => !(s.Contains('#') || string.IsNullOrEmpty(s))).ToArray();
+
         List<string> p = new List<string>();
         char[] split = {',',' ','r','c'};
+        string[] code = new string[asm.Length];
 
         for (int i = 0; i < asm.Length; i++)
         {
             string[] args = asm[i].Split(split);
             args = args.Where(a => !string.IsNullOrEmpty(a)).ToArray();
             string opcode = args[0];
-            if (opcode == "def")
-            {
+            
+            if (opcode == "def") {
                 p.Add($"{i-p.Count}");
                 goto end;
             }
-            if (opcode == "Main:")
-            {
+            if (opcode == "Main:") {
                 p.Insert(0, $"{i-p.Count}");
                 goto end;
             }
             args = args.Skip(1).ToArray();
+
             code[i] = Tools.Format(opcode, args);
             end:;
         }
@@ -233,7 +241,15 @@ class Executor
         return lastAddress;
     }
     static void LDI(params int[] args) {
-        reg[args[0]] = args[1]*16 + args[2];
+        int id;
+
+        if (args[0] < reg.Length) {
+            id = args[0];
+            reg[id] = args[1]*16 + args[2];
+            return;
+        }
+        id = args[0] - reg.Length;
+        reg[id] = args[1]*4096 + args[2]*256 + reg[id];
     }
     static void LDM(params int[] args) {
         reg[args[0]] = RAM[args[1]*16 + args[2]];

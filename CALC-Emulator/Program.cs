@@ -22,12 +22,15 @@ internal class Program
         string? p = Console.ReadLine();
         Console.Clear();
         string filePath = File.Exists(p) ? p : "";
-        if (string.IsNullOrEmpty(filePath))
-        {
+        if (string.IsNullOrEmpty(filePath)) {
             Console.Clear();
+            goto start;
+        }
+        if (!filePath.Contains(".asc")) {
+            Console.WriteLine("Incorrect File Type.");
             goto getFile;
         }
-        string compiledFile = filePath.Replace("asc","smc");
+        string compiledFile = filePath.Replace(".asc",".smc");
 
         // Handles Assembling
         string[] assembly = File.ReadAllLines(filePath);
