@@ -20,7 +20,7 @@ Using the Emulator.
 
 Example ASC code.
 -
-Example code can be found in the <a href="CALC-Emulator/example">`example`</a> folder.
+Example code can be found in the <a href="Example">`example`</a> folder.
 
 Important Links.
 -
