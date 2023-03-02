@@ -13,11 +13,11 @@ class Tools
         {"LDI", "5 reg num"},
         {"LDM", "6 reg num"},
         {"STR", "7 reg num"},
-        {"ADD", "8 type sType clr"},
-        {"SUB", "9 type sType clr"},
-        {"SFT", "A type sType reg"},
-        {"GTI", "B reg type"},
-        {"DSO", "C reg type"}
+        {"ADD", "8 type1 type2 reg"},
+        {"SUB", "9 type1 type2 reg"},
+        {"SFT", "A type1 type2 reg"},
+        {"LDP", "B reg1 reg2 port"},
+        {"WRP", "C reg port1 port2"}
     };
 
     static public string Format(string opcode, string[] args)
@@ -46,33 +46,29 @@ class Tools
             structuredCode = formattedCode
             .Replace("funcID", args[0]);
             break;
-            case 5:
+            case 5: case 6: case 7:
             args[0] = args[0].Contains('\'')? $"{Convert.ToInt32(args[0].Replace('\'', ' ')) + 8}" : args[0];
             structuredCode = formattedCode
             .Replace("reg", args[0])
             .Replace("num", args[1]);
             break;
-            case 6: case 7:
+            case 8: case 9: case 10:
             structuredCode = formattedCode
-            .Replace("reg", args[0])
-            .Replace("num", args[1]);
-            break;
-            case 8: case 9:
-            structuredCode = formattedCode
-            .Replace("type", args[0])
-            .Replace("sType", args[1])
-            .Replace("clr", args[2]);
-            break;
-            case 10:
-            structuredCode = formattedCode
-            .Replace("type", args[0])
-            .Replace("sType", args[1])
+            .Replace("type1", args[0])
+            .Replace("type2", args[1])
             .Replace("reg", args[2]);
             break;
-            case 11: case 12:
+            case 11:
+            structuredCode = formattedCode
+            .Replace("reg1", args[0])
+            .Replace("reg2", args[1])
+            .Replace("port", args[2]);
+            break;
+            case 12:
             structuredCode = formattedCode
             .Replace("reg", args[0])
-            .Replace("type", args[1]);
+            .Replace("port1", args[1])
+            .Replace("port2", args[2]);
             break;
         }
 
@@ -124,7 +120,7 @@ class Assembler
 class Executor
 {
     static Random rnd = new Random();
-    static int[] RAM = new int[0xFF];
+    static int[] RAM1 = new int[0xFF], RAM2 = new int[0xFF];
     static int[] reg = new int[8] {
         0, 0, 0, 0, 0, 0, 0, 0
     };
@@ -143,13 +139,23 @@ class Executor
         {0x8, ADD},
         {0x9, SUB},
         {0xA, SFT},
-        {0xB, GTI},
-        {0xC, DSO}
+        {0xB, LDP},
+        {0xC, WRP}
+    };
+    static Dictionary<int, Delegate> inPorts = new Dictionary<int, Delegate>() {
+        {0x0, UserInput},
+        {0x1, RNG}
+    };
+    static Dictionary<int, Delegate> outPorts = new Dictionary<int, Delegate>() {
+        {0x0, HexDisplay},
+        {0x1, DecimalDisplay},
+        {0x2, XYDisplay}
     };
 
     static public void Execute(string[] code, string[] pointersStr, bool debug = false)
     {
-        RAM = new int[0xFF];
+        RAM1 = new int[0xFF];
+        RAM2 = new int[0xFF];
         reg = new int[8];
         lastAddress = 0;
 
@@ -173,12 +179,17 @@ class Executor
             int? output = (int?)instructions[opcode].DynamicInvoke(args.ToArray());
             output = opcode == 3 && output != null ? pointers[(int)output+1] : output;
             i = output != null ? (int)output-1 : i;
+
+            if (debug) {
+                Console.Write("\nPress Enter to Continue.");
+                while(Console.ReadKey(true).Key != ConsoleKey.Enter) {};
+            }
         }
     }
 
     static void Debug(int[] code, int current)
     {
-        string str = "\nDebug Output:\n\n";
+        string str = "\n\nDebug Output:\n\n";
         for (int i = 0; i < code.Length; i++)
         {
             int line = code[i];
@@ -221,6 +232,8 @@ class Executor
         }
     }
 
+    // CPU Functions
+
     static void MSC(params int[] args) {
         if (args[0] == 0 || args[0] == 1) { return; }
         int delay = args[1]*16 + args[2];
@@ -242,7 +255,6 @@ class Executor
     }
     static void LDI(params int[] args) {
         int id;
-
         if (args[0] < reg.Length) {
             id = args[0];
             reg[id] = args[1]*16 + args[2];
@@ -252,10 +264,24 @@ class Executor
         reg[id] = args[1]*4096 + args[2]*256 + reg[id];
     }
     static void LDM(params int[] args) {
-        reg[args[0]] = RAM[args[1]*16 + args[2]];
+        int id;
+        if (args[0] < reg.Length) {
+            id = args[0];
+            reg[id] = RAM1[args[1]*16 + args[2]];
+            return;
+        }
+        id = args[0] - reg.Length;
+        reg[id] = RAM2[args[1]*16 + args[2]];
     }
     static void STR(params int[] args) {
-        RAM[args[1]*16 + args[2]] = reg[args[0]];
+        int id;
+        if (args[0] < reg.Length) {
+            id = args[0];
+            RAM1[args[1]*16 + args[2]] = reg[id];
+            return;
+        }
+        id = args[0] - reg.Length;
+        RAM2[args[1]*16 + args[2]] = reg[id];
     }
     static void ADD(params int[] args) {
         int sum = args[0] == 1 && regF[4] ? 
@@ -293,24 +319,42 @@ class Executor
         //     end:;
         // }
     }
-    static void GTI(params int[] args) {
-        int port = args[1]*16 + args[2];
-        if (port == 0 || port == 1) {
-            string output = port == 0 ?
-            $"Hexadecimal > " :
-            $"Decimal > ";
-            Console.Write(output);
-            string? input = Console.ReadLine();
-            reg[args[0]] = port == 0 ? Convert.ToInt32(input,16) : Convert.ToInt32(input);
-            return;
-        }
-        reg[args[0]] = port == 2 ? rnd.Next(0xFFFF) : reg[args[0]];
+    static void LDP(params int[] args) {
+        int? output = (int?)inPorts[args[2]].DynamicInvoke(reg[args[1]]);
+        reg[args[0]] = output == null? reg[args[0]] : output.Value;
     }
-    static void DSO(params int[] args) {
-        int port = args[1]*16 + args[2];
-        string output = port == 0 ?
-        $"Hexadecimal: {Tools.TwoComp(reg[args[0]])}" :
-        $"Decimal: {reg[args[0]]}";
-        Console.WriteLine(output);
+    static void WRP(params int[] args) {
+        int data = reg[args[0]];
+        outPorts[args[1]].DynamicInvoke(data);
+
+        if (args[1] != args[2]) {
+            outPorts[args[2]].DynamicInvoke(data);
+        }
+    }
+
+    // Input port1s
+
+    static int UserInput(int arg) {
+        string output = arg == 0 ?
+        $"Hexadecimal > " :
+        $"Decimal > ";
+        Console.Write(output);
+        string? input = Console.ReadLine();
+        return arg == 0 ? Convert.ToInt32(input,16) : Convert.ToInt32(input);
+    }
+    static int RNG() {
+        return rnd.Next(0xFFFF);
+    }
+
+    // Output port1s
+
+    static void HexDisplay(int data) {
+        Console.WriteLine($"Hexadecimal: {Tools.TwoComp(data)}");
+    }
+    static void DecimalDisplay(int data) {
+        Console.WriteLine($"Decimal: {data}");
+    }
+    static void XYDisplay(int data) {
+
     }
 }
