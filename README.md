@@ -25,5 +25,5 @@ Example codes can be found in the <a href="Examples">`example`</a> folder.
 Important Links.
 -
 CALC ISA: [CALC ISA](https://docs.google.com/spreadsheets/d/1cAkJrPHr2NaB6NzkKBMjP4aPQQalOxp-QOafpjYkXTk/edit?usp=sharing)<br>
-ASC Refrence: [refrence.asc](CALC-Emulator/Refrence.asc)<br>
+ASC Refrence: [Refrence.asc](Examples/Refrence.asc)<br>
 Emulator (zip): [CALC-Emulator](CALC-Emulator-App.zip)
