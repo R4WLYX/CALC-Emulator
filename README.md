@@ -26,4 +26,5 @@ Important Links.
 -
 CALC ISA: [CALC ISA](https://docs.google.com/spreadsheets/d/1cAkJrPHr2NaB6NzkKBMjP4aPQQalOxp-QOafpjYkXTk/edit?usp=sharing)<br>
 ASC Refrence: [Refrence.asc](Examples/Refrence.asc)<br>
-Emulator (zip): [CALC-Emulator](CALC-Emulator-App.zip)
+Emulator (zip): [CALC-Emulator](CALC-Emulator-App.zip)<br>
+Syntax Higlighter: [CALC Syntax Highlighter (outdated)]()
